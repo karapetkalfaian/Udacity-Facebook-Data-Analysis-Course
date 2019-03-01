@@ -1,0 +1,181 @@
+---
+title: "lesson3"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+getwd()
+setwd("C:/Users/karapet/Downloads")
+list.files()
+pf<-read.csv('pseudo_facebook.tsv',sep='\t')
+str(pf)
+summary(pf)
+
+```
+
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+qplot(x=dob_day, data=pf)+
+  scale_x_continuous(breaks=1:31)+
+  facet_wrap(~dob_month,ncol=3)
+
+```
+```{r}
+str(pf)
+
+qplot(x=friend_count,data=pf,xlim=c(0,1000))
+
+qplot(x=friend_count,data=pf)+
+  scale_x_continuous(limits=c(0,1000))
+
+```
+
+
+
+
+
+```{r}
+str(pf)
+
+qplot(x=friend_count,data=subset(pf,!is.na(gender)),color=I('black'),fill=I('#099dd9'),binwidth=30)+
+  scale_x_continuous(limits=c(0,1000),breaks=seq(0,1000,50))+
+  facet_grid(~gender)
+
+table(pf$gender)
+by(pf$friend_count,pf$gender,summary)
+  
+
+```
+
+
+```{r}
+str(pf)
+
+summary(pf)
+
+qplot(x=tenure/365, data=pf,binwidth=.25,
+      xlab = 'Number of Years using Facebook',
+      ylab='Number of users in Sample',
+      color=I('black'), fill=I('#099dd9'))+
+  scale_x_continuous(limits = c(0,7),breaks=seq(1,7,1))
+
+```
+
+```{r}
+str(pf)
+
+summary(pf$age)
+
+
+qplot(x=age,data=pf,binwidth=1,
+      color=I('black'),fill=('#099dd9'))+
+  scale_x_continuous(limits=c(13,100),breaks=seq(0,100,5))+
+  facet_grid(~gender)
+
+
+```
+
+```{r}
+install.packages('gridExtra')
+library(gridExtra)
+
+str(pf)
+
+summary(pf$friend_count)
+summary(log10(pf$friend_count+1))
+summary(sqrt(pf$friend_count))
+
+
+p1=qplot(x=friend_count,data=pf)+
+  scale_x_continuous(limits=c(0,2500),breaks=seq(0,2500,250))
+p2=qplot(x=friend_count,data=pf)+
+  scale_x_continuous(limits=c(0,2500),breaks=seq(0,2500,250),trans='sqrt')
+p3=qplot(x=friend_count,data=pf)+
+  scale_x_continuous(trans='log10')
+
+
+grid.arrange(p1,p2,p3,ncol=1)
+
+```
+```{r}
+qplot(x=friend_count,data=subset(pf,!is.na(gender)),
+      binwidth=10)+
+  scale_x_continuous(limits=c(0,1000),breaks=seq(0,1000,50))+
+  facet_wrap(~gender)
+
+# qplot(x=friend_count, y=(...count...)/sum(...count...),data=subset(pf,!is.na(gender)),
+#       binwidth=10,geom='freqpoly',color=gender)+
+#   scale_x_continuous(limits=c(0,1000),breaks=seq(0,1000,50))
+  
+qplot(x=www_likes,data=subset(pf,!is.na(gender)),bindwidth=100,geom='freqpoly',color=gender)+
+  scale_x_continuous(limits=c(0,650),breaks=seq(0,2000,50))+
+  scale_y_continuous(limits=c(0,4000))+
+  scale_x_log10()
+
+by(pf$www_likes,pf$gender,sum)
+```
+
+```{r}
+yp1=qplot(x=gender,y=friend_count,data=subset(pf,!is.na(gender)),
+      geom='boxplot',ylim = c(0,1000))
+yp2=qplot(x=gender,y=friend_count,data=subset(pf,!is.na(gender)),
+      geom='boxplot')+
+  coord_cartesian(ylim = c(0,1000))
+
+grid.arrange(yp1,yp2)
+
+qplot(x=gender,y=friend_count,data=subset(pf,!is.na(gender)),
+      geom='boxplot')+
+  coord_cartesian(ylim = c(0,250))
+
+by(pf$friend_count,pf$gender,summary)
+
+```
+
+
+```{r}
+
+summary(pf$mobile_likes)
+
+summary(pf$mobile_likes>0)
+
+pf$mobile_check_in<-ifelse(pf$mobile_likes>0,1,0)
+pf$mobile_check_in<-factor(pf$mobile_check_in)
+total_user<-nrow(pf)
+total_user<-length(pf$mobile_check_in)
+sum(pf$mobile_check_in==1)/total_user
+
+
+
+
+
+```
+
+
+

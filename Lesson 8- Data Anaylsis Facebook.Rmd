@@ -1,0 +1,173 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+str(diamonds)
+
+ggplot(aes(x=log(price)),data=diamonds)+
+  geom_histogram(aes(color=cut))+
+  scale_color_brewer(type='qual')+
+  facet_wrap(~color)
+
+```
+
+
+```{r}
+
+ggplot(aes(x=table,y=price),
+       data=diamonds)+
+  geom_point(aes(color=cut))+
+  scale_color_brewer(type='qual')
+
+```
+
+
+```{r}
+
+head(diamonds$volume)
+
+ggplot(aes(x=volume,y=price),
+       data=diamonds)+
+  geom_point(aes(color=clarity))+
+  scale_color_brewer(type='div')+
+  scale_y_log10()+
+  coord_cartesian(xlim = c(0,quantile(diamonds$volume,.99)))
+ 
+```
+
+```{r}
+
+pf<-transform(pf,prop_iniated=pf$friendships_initiated/pf$friend_count)
+
+
+ggplot(aes(x=tenure,prop_iniated),
+       data=subset(pf,!is.na(year_joined.bucket)))+
+  geom_line(aes(color=year_joined.bucket),stat='summary',fun.y=median)
+  
+
+
+```
+
+```{r}
+
+ggplot(aes(x=tenure/1000,y=prop_iniated),
+       data=subset(pf,!is.na(prop_iniated)))+
+  geom_smooth(aes(color=year_joined.bucket))
+library(dplyr)
+
+pf %>% 
+  filter(!is.na(prop_iniated)) %>% 
+  group_by(year_joined.bucket) %>% 
+  summarise(mean_prop=mean(prop_iniated))
+
+
+```
+
+```{r}
+ggplot(aes(x=cut,y=price/carat),
+       data=diamonds)+
+  geom_point(aes(color=color))+
+  facet_wrap(~clarity)+
+  scale_color_brewer(type='div')
+
+
+```
+
+
+```{r}
+library(readxl)
+getwd()
+setwd("C:/Users/karapet/Downloads")
+
+tcl_male<-read_excel('C:/Users/karapet/Downloads/Indicator_TC male ASM.xlsx')
+tcl_female<-read_excel('C:/Users/karapet/Downloads/Indicator_TC female ASM.xlsx')
+
+tcl_male$gender<-"male"
+tcl_female$gender<-"female"
+
+names(tcl_male)[1]<-"country"
+names(tcl_female)[1]<-"country"
+
+tcl_male.long<-melt(tcl_male,id.vars = c("country","gender"),
+                    variable.name = "year",
+                    value.name = "total cholestrol standardized mean (mmol/L)")
+
+
+tcl_female.long<-melt(tcl_female,id.vars = c("country","gender"),
+                    variable.name = "year",
+                    value.name = "total cholestrol standardized mean (mmol/L)")
+
+tcl_total.long<-rbind(tcl_female.long,tcl_male.long)
+
+tcl_total.long<-tcl_total.long %>% 
+  group_by(country) %>% 
+  arrange(country)
+
+tcl_total.long_Vietnam<-subset(tcl_total.long,country=='Vietnam')
+tcl_total.long_Japan<-subset(tcl_total.long,country=='Japan')
+
+tcl_total.long_China<-subset(tcl_total.long,country=='China')
+
+
+vietnam<-ggplot(aes(x=year,y=tcl_total.long_Vietnam$`total cholestrol standardized mean (mmol/L)`),
+       data=tcl_total.long_Vietnam)+
+  geom_point(aes(color=gender))
+
+japan<-ggplot(aes(x=year,y=`total cholestrol standardized mean (mmol/L)`),
+       data=tcl_total.long_Japan)+
+  geom_point(aes(color=gender))
+
+china<-ggplot(aes(x=year,y=`total cholestrol standardized mean (mmol/L)`),
+       data=tcl_total.long_China)+
+  geom_point(aes(color=gender))+
+  geom_line(stat='summary',fun.y=mean)
+  
+
+library(gridExtra)
+
+
+grid.arrange(vietnam,japan,china)
+
+
+set.seed(4230)
+sample.country<-sample(tcl_total.long$country,40)
+
+ggplot(aes(x=year,y=`total cholestrol standardized mean (mmol/L)`),
+       data=subset(tcl_total.long,country %in% sample.country))+
+  geom_boxplot(aes(color=gender))+
+  facet_wrap(~country)
+
+ggplot(aes(x=year,y=`total cholestrol standardized mean (mmol/L)`),
+       data=subset(tcl_total.long_Japan))+
+  geom_boxplot(aes(color=gender))
+
+
+```
+
